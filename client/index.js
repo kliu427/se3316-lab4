@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const port = 3000
+const port = 3000;
 
 const parts = [
     {id: 100, name: 'Belt', colour: 'brown',},
@@ -9,6 +9,8 @@ const parts = [
     {id: 103, name: 'Hat', colour: 'purple'}
 ];
 
+app.use('/', express.static('static'));
+
 app.get('/api/parts', (req, res) =>{
     console.log(`GET req for ${req.url}`);
     res.send(parts);
@@ -16,4 +18,4 @@ app.get('/api/parts', (req, res) =>{
 
 app.listen(port, () =>{
     console.log(`Listening on port ${port}`);
-})
+});
