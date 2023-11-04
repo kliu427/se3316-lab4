@@ -79,6 +79,69 @@ app.get('/api/publishers', (req, res) =>{
     }
 });
 
+//get first n number 
+router.get('/search/:searchBy/:searchField/:number', (req, res) =>{
+    const heros = match(req.params.searchBy, req.params.searchField, req.params.number);
+    res.send(heros);
+
+});
+
+function match(pattern, field, n) {
+    const matchingIDs = [];
+    const queryField = field.toLowerCase();
+    let count = 0;
+
+    for (const key in superheroInfo) {
+        if (pattern == "Powers"){
+            let formattedQueryField = queryField.charAt(0).toUpperCase() + queryField.slice(1);
+            console.log(formattedQueryField);
+            for (powers of superheroPowers){
+                if (powers[formattedQueryField] == "True"){
+                    matchingIDs.push(powers['hero_names']);
+                    count++;
+                    if(count == n){
+                        return matchingIDs;
+                    }
+                }
+            }
+        }
+
+        else if (pattern == "Name"){
+            for (heros of superheroInfo){
+                if (heros["name"].toLowerCase().includes(queryField) && heros["name"].toLowerCase().indexOf(queryField)==0){
+                    matchingIDs.push(heros['name']);
+                    count++;
+                    if(count == n){
+                        return matchingIDs;
+                    }
+                }
+            }
+        }
+        else if (pattern == "Publisher"){
+            for (heros of superheroInfo){
+                if (heros["Publisher"].toLowerCase().includes(queryField) && heros["Publisher"].toLowerCase().indexOf(queryField)==0){
+                    matchingIDs.push(heros['name']);
+                    count++;
+                    if(count == n){
+                        return matchingIDs;                        }
+                }
+            }
+        }
+        else if (pattern == "Race"){
+            for (heros of superheroInfo){
+                if (heros['Race'].toLowerCase().includes(queryField) && heros["Race"].toLowerCase().indexOf(queryField)==0){
+                    matchingIDs.push(heros['name']);
+                    count++;
+                    if(count == n){
+                        return matchingIDs;
+                    }
+                }
+            }
+        }
+    }
+    return matchingIDs;
+  }
+
 
 //Create/replace superhero for an ID
 router.put('/:id', (req, res)=>{
