@@ -7,8 +7,8 @@ const router = express.Router();
 
 
 const superheroInfo = JSON.parse(fs.readFileSync('server/superhero_info.json', 'utf8'));
-
 const superheroPowers = JSON.parse(fs.readFileSync('server/superhero_powers.json', 'utf8'));
+const superheroLists = {};
 
 //set up serving front-end code
 app.use('/', express.static('client'));
@@ -85,7 +85,7 @@ router.get('/search/:searchBy/:searchField/:number', (req, res) =>{
     res.send(heros);
 
 });
-
+//function to search by parameters
 function match(pattern, field, n) {
     const matchingIDs = [];
     const queryField = field.toLowerCase();
@@ -142,13 +142,41 @@ function match(pattern, field, n) {
     return matchingIDs;
   }
 
+//create a list to save a certain list of superheroes with a name
+router.post('/create_list', (req, res) =>{
+    const listName = req.body.name;
+    if (superheroLists[listName]){
+        return res.status(400).json({ error: 'List name is taken' });
+    }
+    superheroLists[listName] = [];
+    res.json({ message: `List '${listName}' created!` });
+
+});
+
+//update an existing list with superhero names
+router.post('/assign_list', (req, res) =>{
+    const listName = req.body.listName;
+    const superheros = req.body.superheroIDs;
+    if (!superheroLists[listName]){
+        return res.status(404).json({ error: 'Cannot find list name' });
+    }
+
+    superheroLists[listName] = superheros;
+    res.json({ message: `List '${listName}' assigned with superhero IDs!` });
+});
 
 //Create/replace superhero for an ID
-router.put('/:id', (req, res)=>{
-    const newSuperHero = req.body;
-    console.log("Part: ", newSuperHero);
-    res.send('Whatever');
-})
+router.get('/get-ids', (req, res)=>{
+    const listName = req.query.listName;
+
+    if (!superheroLists[listName]){
+        return res.status(404).json({ error: 'Cannot find list name' });
+    }
+
+    const superheros = superheroLists[listName];
+
+    res.json({ listName, superheros });
+});
 
 //install the router at api/superheroInfo
 app.use('/api/superheroes', router)
