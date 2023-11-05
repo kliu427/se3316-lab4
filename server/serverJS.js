@@ -153,6 +153,20 @@ router.post('/create_list', (req, res) =>{
 
 });
 
+
+//Create/replace superhero for an ID
+    router.get('/get_list/:list_name', (req, res)=>{
+        const listName = req.params.list_name;
+
+        if (!superheroLists[listName]){
+            return res.status(404).json({ error: 'Cannot find list name' });
+        }
+
+        const superheros = superheroLists[listName];
+
+        res.json({ listName, superheros });
+    });
+
 //update an existing list with superhero names
 router.post('/assign_list', (req, res) =>{
     const listName = req.body.listName;
@@ -162,21 +176,39 @@ router.post('/assign_list', (req, res) =>{
     }
 
     superheroLists[listName] = superheros;
-    res.json({ message: `List '${listName}' assigned with superhero IDs!` });
+    res.json({ message: `List '${listName}' assigned with superhero IDs! \n ${superheroLists[listName]}` });
 });
 
-//Create/replace superhero for an ID
-router.get('/get-ids', (req, res)=>{
-    const listName = req.query.listName;
+//delete an existing list with superhero names
+router.delete('/delete_list/:list_name', (req, res) =>{
+    const listName = req.params.list_name;
 
-    if (!superheroLists[listName]){
-        return res.status(404).json({ error: 'Cannot find list name' });
+    if (!superheroLists[listName]) {
+      return res.status(404).json({ error: 'Cannot find list name to delete' });
     }
-
-    const superheros = superheroLists[listName];
-
-    res.json({ listName, superheros });
+  
+    delete superheroLists[listName];
+  
+    res.json({ message: `List '${listName}' deleted successfully` });
 });
+
+//get a list of all superhero info for a custom list
+router.get('/get_superheros_from_list/:list_name', (req, res) => {
+    const listName = req.params.list_name;
+  
+    if (!superheroLists[listName]) {
+      return res.status(404).json({ error: 'Cannot find list name' });
+    }
+  
+    const superheroIDs = superheroLists[listName];
+    const superheroesInList = [];
+    for (id in superheroIDs){
+        const superhero = superheroInfo.find(p => p.id === parseInt(id));
+        superheroesInList.push(superhero);
+    }  
+    res.json({ listName, superheroes: superheroesInList });
+  });
+
 
 //install the router at api/superheroInfo
 app.use('/api/superheroes', router)
