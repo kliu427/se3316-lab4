@@ -15,7 +15,10 @@ const addSuperheroBtn = document.getElementById("add_superhero_btn");
 const deleteCustomListBtn = document.getElementById("delete_btn");
 const addSuperheroName = document.getElementById("superhero_name");
 
+const replacementHero = document.getElementById("replace_hero");
+const replaceBtn = document.getElementById("replace_btn");
 
+replaceBtn.addEventListener('click', replaceHero)
 searchButton.addEventListener('click', searchSuperheroes);
 createList.addEventListener('click', createCustomList);
 addSuperheroBtn.addEventListener('click', addSuperherosToList);
@@ -122,7 +125,7 @@ async function addSuperherosToList(){
 }
 
 function showCustomList(){
-    const get_path = `/api/superheroes/get_superheros_from_list/${currentCustomList.value}`;
+    const get_path = `/api/superheroes/sort/${sortSelect.value}/${currentCustomList.value}`;
     const list_r = document.getElementById("list_results");
     list_r.innerHTML = ''
     fetch(get_path)
@@ -154,11 +157,67 @@ function showCustomList(){
                     returnString += `, Weight: ${e[value]}`;
                 }
             }
-            hero.appendChild(document.createTextNode(returnString));
-            list_r.appendChild(hero);
+            fetch(`/api/superheroes/${e['id']}/powers`)
+            .then(res => res.json())
+            .then(powers =>{
+                returnString += `, Powers: `
+                powers.forEach(p=>{
+                    returnString += p;
+                    returnString += ', '
+                });
+                const newReturnString = returnString.slice(0, -2);
+                hero.appendChild(document.createTextNode(newReturnString));
+                list_r.appendChild(hero);
+            });
+            
         });
     }));
 }
+
+async function replaceHero() {
+    const replaceHeroName = replacementHero.value;
+    const listName = currentCustomList.value;
+    
+    try {
+        const deleteResponse = await fetch(`/api/superheroes/delete_list/${listName}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const deleteData = await deleteResponse.json();
+
+        const createResponse = await fetch(`/api/superheroes/create_list/${listName}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const createData = await createResponse.json();
+
+        const idResponse = await fetch(`/api/superheroes/get_id/${replaceHeroName}`);
+        const idData = await idResponse.json();
+
+        const assignPath = `/api/superheroes/assign_list/${listName}/${idData.id}`;
+        const assignResponse = await fetch(assignPath, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const assignData = await assignResponse.json();
+
+        alert(`List successfully replaced!`);
+        showCustomList();
+    } catch (error) {
+        alert("Superhero doesn't exist in records!");
+        console.log(error);
+    }
+}
+
 async function deleteList(){
     const delete_path = `/api/superheroes/delete_list/${currentCustomList.value}`;
     const deleteResponse = await fetch(delete_path, {

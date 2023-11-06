@@ -236,7 +236,6 @@ router.get('/get_superheros_from_list/:list_name', (req, res) => {
     const superheroesInList = [];
     for (id of superheroIDs){
         const superhero = superheroInfo.find(p => p.id === parseInt(id));
-        console.log(superhero)
         superheroesInList.push(superhero);
     }  
     res.json(superheroesInList);
@@ -251,6 +250,27 @@ app.get('/api/superheroes/get_custom_list_names', (req, res) => {
     res.json(keys);
 });
 
+//sort the current list of superheroes
+router.get('/sort/:criteria/:list_name', (req, res) => {
+    const listName = req.params.list_name;
+    const criteria = req.params.criteria;
+    if (!superheroLists.get(listName)) {
+        return res.status(404).json({ error: 'Cannot find list name' });
+    }
+    const superheroes = [];
+    const superheroIDs = superheroLists.get(listName);
+    for (id of superheroIDs){
+        const superhero = superheroInfo.find(p => p.id === parseInt(id));
+        superheroes.push(superhero);
+    }
+    
+        const sortedSuperheroes = superheroes.sort((a, b) => {
+        return a[criteria].localeCompare(b[criteria]);
+      });
+    
+  
+    res.json(sortedSuperheroes);
+  });
 
 //install the router at api/superheroInfo
 app.use('/api/superheroes', router)

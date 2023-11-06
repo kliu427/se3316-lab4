@@ -20,13 +20,23 @@ ol{
     list-style: decimal inside;
     margin: 10px 0;
     padding: 10px;
+    border-color: #0078d4;
 }
 ul {
     list-style: disc inside;
     margin: 10px 0;
-    padding: 30px; 
+    padding: 10px; 
+}
+
+li {
+    padding: 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #999;
   }
 
+#replace_btn{
+    margin-top: 10px;
+}
 p.intro {
     border-radius: 25px;
     border: 2px solid #73ad21;
