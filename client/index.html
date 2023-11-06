@@ -2,11 +2,56 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Parts Store</title>
+        <title>Superhero Emporium</title>
         <link rel="stylesheet" href="style.css">
     </head>
     <body>
         <h1>Superhero Emporium</h1>
-        <p class = "intro">We got your superhero!</p>
+        <h2>Superhero Search</h2>
+        
+        <div class="search_box">
+            <input type="text" id="search_input" placeholder="Search">
+            <select id="search_criteria">
+                <option value="name">Name</option>
+                <option value="race">Race</option>
+                <option value="publisher">Publisher</option>
+                <option value="powers">Power</option>
+            </select>
+            <input class ="int_input" type="number" id="int_input" value = "1" step="1" min = "1">
+            <button id="search_btn">Search</button>
+            
+        </div>
+        <ol id="search_results">
+
+        </ol>
+        <h2>Favorite Lists</h2>
+        <div class="list_box">
+            <input type="text" id="list_name" placeholder = "Enter list name">
+            <button id="create_list_btn">Create List</button>
+            
+        </div>
+        <h3>List Functions</h3>
+        <div class="list_functions">
+            <select class = "custom_lists" id="custom_lists" placeholder = "Select a list" >
+
+            </select>
+            <input type="text" id="superhero_name" placeholder = "Superhero name">
+            <button id="add_superhero_btn">Add Superhero</button>
+            <button id="display_list_btn">Display List</button>
+            <button id="delete_btn">Delete List</button>
+        </div>
+        <p>Sort Results By:</p>
+            <select id="sort_criteria">
+                <option value="name">Name</option>
+                <option value="race">Race</option>
+                <option value="publisher">Publisher</option>
+                <option value="powers">Power</option>
+            </select>
+        <ul id="list_results">
+
+        </ul>
+
+        <script defer src="app.js"></script>
+
     </body>
 </html>

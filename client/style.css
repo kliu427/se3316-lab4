@@ -5,9 +5,61 @@ h1 {
     color: white;
     text-shadow: 1px 1px 2px black, 0 0 25px blue, 0 0 5px darkblue;
 }
+h2 {
+    color: #0078d4;
+    border-radius: 24px;
+    margin: 10px 0;
+}
+
+h3 {
+    color: blue;
+    font-size: 20px;
+    margin: 10px 0;
+  }
+ol{
+    list-style: decimal inside;
+    margin: 10px 0;
+    padding: 10px;
+}
+ul {
+    list-style: disc inside;
+    margin: 10px 0;
+    padding: 30px; 
+  }
+
 p.intro {
     border-radius: 25px;
     border: 2px solid #73ad21;
     padding: 20px;
     background-color: rgb(246, 195, 248);
 }
+select.custom_lists{
+    width : 150px
+}
+input.int_input{
+    padding: 5px;
+    border: 1px solid #ccc;
+    width: 40px;
+}
+input[type="text"] {
+    padding: 5px;
+    border: 1px solid #ccc;
+}
+select {
+    padding: 5px;
+    border: 1px solid #ccc;
+}
+#search_btn {
+    background-color: blue;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+  }
+  button {
+    background-color: #0078d4;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+  }

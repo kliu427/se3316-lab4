@@ -1,14 +1,24 @@
 const express = require('express');
 const fs = require('fs'); 
-
+var Storage = require('node-storage');
+const superheroLists = new Storage('./storage');
 const app = express();
 const port = 3000;
 const router = express.Router();
+const i18n = require('i18n');
 
+i18n.configure({
+  locales: ['en', 'fr'],
+  directory: __dirname + '/locales',
+});
+
+app.use((req, res, next) => {
+  const userLanguage = req.query.lang || 'en'; 
+  next();
+});
 
 const superheroInfo = JSON.parse(fs.readFileSync('server/superhero_info.json', 'utf8'));
 const superheroPowers = JSON.parse(fs.readFileSync('server/superhero_powers.json', 'utf8'));
-const superheroLists = {};
 
 //set up serving front-end code
 app.use('/', express.static('client'));
@@ -40,6 +50,19 @@ router.get('/:superhero_id', (req, res) =>{
     }
 });
 
+//get superhero id by name
+router.get('/get_id/:superhero_name', (req, res) =>{
+    const name = req.params.superhero_name;
+    const superhero = superheroInfo.find(p => p.name.toLowerCase() === name.toLowerCase());
+    console.log(superhero);
+    if(superhero){
+        res.json({id: superhero.id});
+    }
+    else {
+        res.status(404).send(`Superhero ${name} was not found`);
+    }
+});
+
 //get superhero powers
 router.get('/:superhero_id/powers', (req, res) =>{
     const id = req.params.superhero_id;
@@ -62,7 +85,7 @@ router.get('/:superhero_id/powers', (req, res) =>{
 });
 
 //get all publisher names
-app.get('/api/publishers', (req, res) =>{
+app.get('/api/superheroes/publishers', (req, res) =>{
     const publishers = [];
 
     superheroInfo.forEach((hero)=>{
@@ -143,51 +166,60 @@ function match(pattern, field, n) {
   }
 
 //create a list to save a certain list of superheroes with a name
-router.post('/create_list', (req, res) =>{
-    const listName = req.body.name;
-    if (superheroLists[listName]){
+router.post('/create_list/:list_name', (req, res) =>{
+    const listName = req.params.list_name;
+    if (superheroLists.get(listName)!=null){
         return res.status(400).json({ error: 'List name is taken' });
     }
-    superheroLists[listName] = [];
-    res.json({ message: `List '${listName}' created!` });
-
+    superheroLists.put(listName, []);
+    res.json({message: `List ${listName} successfully created!`});
 });
 
 
-//Create/replace superhero for an ID
+//get a superhero list
     router.get('/get_list/:list_name', (req, res)=>{
         const listName = req.params.list_name;
 
-        if (!superheroLists[listName]){
+        if (superheroLists.get(listName)===null){
             return res.status(404).json({ error: 'Cannot find list name' });
         }
 
-        const superheros = superheroLists[listName];
-
-        res.json({ listName, superheros });
+        const superheros = superheroLists.get(listName);
+        console.log(superheros);
+        res.json(superheros);
     });
 
 //update an existing list with superhero names
-router.post('/assign_list', (req, res) =>{
-    const listName = req.body.listName;
-    const superheros = req.body.superheroIDs;
-    if (!superheroLists[listName]){
+router.post('/assign_list/:list_name/:superhero_id', (req, res) =>{
+    const listName = req.params.list_name;
+    const superheroID = req.params.superhero_id;
+    if (superheroLists.get(listName)==null){
         return res.status(404).json({ error: 'Cannot find list name' });
     }
 
-    superheroLists[listName] = superheros;
-    res.json({ message: `List '${listName}' assigned with superhero IDs! \n ${superheroLists[listName]}` });
+    else{
+        const currList = superheroLists.get(listName);
+        const set = new Set(currList);
+
+
+        if (!set.has(superheroID)){
+            currList.push(superheroID);
+        }
+        
+        superheroLists.put(listName, currList);
+        res.json({ message: `List '${listName}' assigned with superhero IDs!  ${superheroLists.get(listName)}` });
+    }
 });
 
 //delete an existing list with superhero names
 router.delete('/delete_list/:list_name', (req, res) =>{
     const listName = req.params.list_name;
 
-    if (!superheroLists[listName]) {
+    if (!superheroLists.get(listName)) {
       return res.status(404).json({ error: 'Cannot find list name to delete' });
     }
   
-    delete superheroLists[listName];
+    superheroLists.remove(listName)
   
     res.json({ message: `List '${listName}' deleted successfully` });
 });
@@ -196,18 +228,28 @@ router.delete('/delete_list/:list_name', (req, res) =>{
 router.get('/get_superheros_from_list/:list_name', (req, res) => {
     const listName = req.params.list_name;
   
-    if (!superheroLists[listName]) {
+    if (!superheroLists.get(listName)) {
       return res.status(404).json({ error: 'Cannot find list name' });
     }
   
-    const superheroIDs = superheroLists[listName];
+    const superheroIDs = superheroLists.get(listName);
     const superheroesInList = [];
-    for (id in superheroIDs){
+    for (id of superheroIDs){
         const superhero = superheroInfo.find(p => p.id === parseInt(id));
+        console.log(superhero)
         superheroesInList.push(superhero);
     }  
-    res.json({ listName, superheroes: superheroesInList });
+    res.json(superheroesInList);
   });
+
+//get a list of all superhero lists
+app.get('/api/superheroes/get_custom_list_names', (req, res) => {
+    var keys = []
+    for (key in superheroLists.store){
+        keys.push(key);
+    }
+    res.json(keys);
+});
 
 
 //install the router at api/superheroInfo
