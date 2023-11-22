@@ -17,8 +17,8 @@ app.use((req, res, next) => {
   next();
 });
 
-const superheroInfo = JSON.parse(fs.readFileSync('server/superhero_info.json', 'utf8'));
-const superheroPowers = JSON.parse(fs.readFileSync('server/superhero_powers.json', 'utf8'));
+const superheroInfo = JSON.parse(fs.readFileSync('se3316-lab4/server/superhero_info.json', 'utf8'));
+const superheroPowers = JSON.parse(fs.readFileSync('se3316-lab4/server/superhero_powers.json', 'utf8'));
 
 //set up serving front-end code
 app.use('/', express.static('client'));
